@@ -1,7 +1,7 @@
 const express = require("express");
 const router = new express.Router();
 const userdb = require("../models/userSchema");
-var bcrypt = require("bcryptjs");
+var bcrypt = require("bcrypt");
 const authenticate = require("../middleware/authenticate");
 const nodemailer = require("nodemailer");
 const jwt  = require("jsonwebtoken");
@@ -13,6 +13,9 @@ const keysecret = process.env.SECRET_KEY
 // email config
 
 const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: false,
     service:"gmail",
     auth:{
         user:process.env.EMAIL,
@@ -163,13 +166,13 @@ router.post("/sendpasswordlink",async(req,res)=>{
         
         const setusertoken = await userdb.findByIdAndUpdate({_id:userfind._id},{verifytoken:token},{new:true});
 
-
+        console.log(email)
         if(setusertoken){
             const mailOptions = {
                 from:process.env.EMAIL,
                 to:email,
                 subject:"Sending Email For password Reset",
-                text:`This Link Valid For 2 MINUTES http://localhost:3001/forgotpassword/${userfind.id}/${setusertoken.verifytoken}`
+                text:`This Link Valid For 2 MINUTES http://localhost:3001/forgotpassword/${userfind._id}/${setusertoken.verifytoken}`
             }
 
             transporter.sendMail(mailOptions,(error,info)=>{
@@ -248,14 +251,7 @@ module.exports = router;
 
 
 
-// 2 way connection
-// 12345 ---> e#@$hagsjd
-// e#@$hagsjd -->  12345
 
-// hashing compare
-// 1 way connection
-// 1234 ->> e#@$hagsjd
-// 1234->> (e#@$hagsjd,e#@$hagsjd)=> true
 
 
 
